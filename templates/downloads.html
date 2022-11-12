@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <link href="static/css/styles.css" rel="stylesheet" type="text/css">
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+
+    <title>Downloads</title>
+</head>
+
+<body>
+<div class="d-flex" id="wrapper">
+
+<!-- Sidebar -->
+    <div id="sidebar-wrapper" style="background-color:#222222">
+        <div class="sidebar-heading">Sidebar</div>
+        <div class="list-group list-group-flush">
+            <ul class="navbar-nav mx-4">
+                <li class="nav-item">
+                    <a class="text-white" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="text-white" href="/retrieve_a_block" >Retrieve a Block</a>
+                </li>
+                <li class="nav-item">
+                    <a class="text-white" href="/downloads" >Downloads</a>
+                </li>
+                <li class="nav-item">
+                    <a class="text-white" href="{{url_for('logout')}}" >Log out</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+        <div id="page-content-wrapper">
+
+        <nav class="navbar navbar-expand navbar-dark row">
+            <div class="col-2">
+                <button class="btn btn-labeled btn-secondary" id="menu-toggle" type="button">
+                    <span><i class="fa fa-bars"></i></span></button>
+            </div>
+
+
+            <div class="col-3 col-lg-5"></div>
+            <div class="col d-flex justify-content-around" id=" ">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="//notion.so">Go to Notion</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+
+        <div class="container-fluid">
+            <h1>Downloads</h1>
+        </div>
+
+
+        <!-- /#page-content-wrapper -->
+
+    </div>
+</div>
+
+<!-- /#wrapper -->
+
+<!-- Bootstrap core JavaScript -->
+<script crossorigin="anonymous"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="static/js/index.js"></script>
+
+<!-- Menu Toggle Script -->
+<script>
+    $("#menu-toggle").click(function (e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+
+</script>
+
+</body>
+<div class="underlay-black"></div>
+</html>
