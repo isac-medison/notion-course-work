@@ -1,12 +1,38 @@
  --------------- 1 row ---------------
-[{'type': 'text', 'text': {'content': 'wewewe', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': 'wewewe', 'href': None}]
-[{'type': 'text', 'text': {'content': 'we', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': 'we', 'href': None}]
+column: 22
+{'id': 'yX^E', 'type': 'rollup', 'rollup': {'type': 'array', 'array': [], 'function': 'show_original'}}
+column: Tags
+{'id': '>BkX', 'type': 'rich_text', 'rich_text': [{'type': 'text', 'text': {'content': 'wewewe', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': 'wewewe', 'href': None}]}
+column: Phone
+{'id': 'CPop', 'type': 'phone_number', 'phone_number': '33'}
+column: Checkbox
+{'id': 'MZ@@', 'type': 'checkbox', 'checkbox': False}
+column: Name
+{'id': 'title', 'type': 'title', 'title': [{'type': 'text', 'text': {'content': 'we', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': 'we', 'href': None}]}
  --------------- 2 row ---------------
-[{'type': 'text', 'text': {'content': '111', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '111', 'href': None}]
-[{'type': 'text', 'text': {'content': '1', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '1', 'href': None}]
+column: 22
+{'id': 'yX^E', 'type': 'rollup', 'rollup': {'type': 'array', 'array': [], 'function': 'show_original'}}
+column: Tags
+{'id': '>BkX', 'type': 'rich_text', 'rich_text': [{'type': 'text', 'text': {'content': '111', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '111', 'href': None}]}
+column: Checkbox
+{'id': 'MZ@@', 'type': 'checkbox', 'checkbox': True}
+column: Name
+{'id': 'title', 'type': 'title', 'title': [{'type': 'text', 'text': {'content': '1', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '1', 'href': None}]}
  --------------- 3 row ---------------
-[{'type': 'text', 'text': {'content': '222', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '222', 'href': None}]
-[{'type': 'text', 'text': {'content': '2', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '2', 'href': None}]
+column: 22
+{'id': 'yX^E', 'type': 'rollup', 'rollup': {'type': 'array', 'array': [], 'function': 'show_original'}}
+column: Tags
+{'id': '>BkX', 'type': 'rich_text', 'rich_text': [{'type': 'text', 'text': {'content': '222', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '222', 'href': None}]}
+column: Checkbox
+{'id': 'MZ@@', 'type': 'checkbox', 'checkbox': True}
+column: Name
+{'id': 'title', 'type': 'title', 'title': [{'type': 'text', 'text': {'content': '2', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '2', 'href': None}]}
  --------------- 4 row ---------------
-[{'type': 'text', 'text': {'content': '333', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '333', 'href': None}]
-[{'type': 'text', 'text': {'content': '3', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '3', 'href': None}]
+column: 22
+{'id': 'yX^E', 'type': 'rollup', 'rollup': {'type': 'array', 'array': [], 'function': 'show_original'}}
+column: Tags
+{'id': '>BkX', 'type': 'rich_text', 'rich_text': [{'type': 'text', 'text': {'content': '333', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '333', 'href': None}]}
+column: Checkbox
+{'id': 'MZ@@', 'type': 'checkbox', 'checkbox': True}
+column: Name
+{'id': 'title', 'type': 'title', 'title': [{'type': 'text', 'text': {'content': '3', 'link': None}, 'annotations': {'bold': False, 'italic': False, 'strikethrough': False, 'underline': False, 'code': False, 'color': 'default'}, 'plain_text': '3', 'href': None}]}

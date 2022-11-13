@@ -8,12 +8,15 @@ from flask_bcrypt import Bcrypt
 import requests, json
 from pymongo import MongoClient
 from notion.client import NotionClient
+import sqlite3
+from sqlite3 import Error
+
+import bcrypt
 app = Flask(__name__)
 db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thisisasecretkey'
-
+database='database.db'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -23,11 +26,75 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+def create_connection(db_file):
+    """ create a database connection to the SQLite database
+        specified by db_file
+    :param db_file: database file
+    :return: Connection object or None
+    """
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Error as e:
+        print(e)
+
+    return conn
+
+def create_table(conn, create_table_sql):
+    """ create a table from the create_table_sql statement
+    :param conn: Connection object
+    :param create_table_sql: a CREATE TABLE statement
+    :return:
+    """
+    try:
+        c = conn.cursor()
+        c.execute(create_table_sql)
+        c.close()
+    except Error as e:
+        print(e)
+
+conn = create_connection(database)
+sql_create_userDetails_table = """ CREATE TABLE IF NOT EXISTS user_details (
+                                        id integer PRIMARY KEY,
+                                        user_id text,
+                                        username text,
+                                        name text NOT NULL,
+                                        surname text,
+                                        date_of_birth text
+                                    ); """
+
+sql_create_downloads_table = """ CREATE TABLE IF NOT EXISTS downloads(
+                                        id integer PRIMARY KEY,
+                                        user_id text NOT NULL,
+                                        username text NOT NULL,
+                                        database_id text NOT NULL,
+                                        integration_id text NOT NULL
+                                    ); """
+
+if conn is not None:
+    # create userDetails table
+    create_table(conn, sql_create_userDetails_table)
+    # create downloads table
+    create_table(conn, sql_create_downloads_table)
+else:
+        print("Error! cannot create the database connection.")
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
+
+
+class UserDetails(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    username = db.Column(db.String(20), nullable=False)
+    name = db.Column(db.String(20), nullable=True)
+    surname = db.Column(db.String(20), nullable=True)
+    date_of_birth = db.Column(db.String(20), nullable=True)
+
+
 
 
 class RegisterForm(FlaskForm):
@@ -57,18 +124,40 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+def create_headers(token):
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json",
+        "Notion-Version": "2021-05-13",
+        "Accept": "application/json",
+    }
+    return headers
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         user = User.query.filter_by(username=form.username.data).first()
-#         if user:
-#             if bcrypt.check_password_hash(user.password, form.password.data):
-#                 login_user(user)
-#                 return redirect(url_for('dashboard'))
-#     return render_template('login.html', form=form)
+def create_url(type):
+    url = "https://api.notion.com/v1/"
+    if type == "db":
+        url += "search/"
+    elif type == "pg":
+        url += "pages/"
+    elif type == "li":
+        url += "search/"
+    elif type == "bl":
+        url += "blocks/"
+    return url
 
+
+
+def readDB(database_id, token):
+    try:
+        playload = {"page_size": 100}
+        response = requests.post(
+            f"https://api.notion.com/v1/databases/{database_id}/query",
+            json=playload,
+            headers=create_headers(token),
+        )
+        return response.json()
+    except:
+        print("Error while fetching a user...")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -76,7 +165,15 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
-            if bcrypt.check_password_hash(user.password, form.password.data):
+            bytes = user.password.encode('utf-8')
+
+            # generating the salt
+            salt = bcrypt.gensalt()
+
+            # Hashing the password
+            hash = bcrypt.hashpw(bytes, salt)
+
+            if bcrypt.checkpw(user.password.encode('utf-8'), hash):
                 login_user(user)
                 return redirect(url_for('dashboard'))
     return render_template('login.html', form=form)
@@ -101,152 +198,27 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(username=form.username.data, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            bytes = form.password.data.encode('utf-8')
+            salt = bcrypt.gensalt()
+            hash = bcrypt.hashpw(bytes, salt)
+            sql_create_new_user = f"""INSERT INTO user(username, password) VALUES("{form.username.data}", "{hash}");"""
+            conn2 = create_connection(database)
+            cur = conn2.cursor()
+            cur.execute(sql_create_new_user)
+            conn2.commit()
+        except Error as e:
+            print(e)
+
+        # new_userDetail = UserDetail(name="", surname="", date_of_birth="", user_id=1,username='11')
+        # db.session.add(new_userDetail)
+        # db.session.commit()
         return redirect(url_for('login'))
 
     return render_template('register.html', form=form)
 @app.route('/')
 def home():
     return render_template('home.html')
-
-
-
-
-array_of_results = []
-first_time=True
-
-
-cluster = MongoClient(
-    "mongodb://notionAPI:Zxcvbnm1238!@cluster0-shard-00-00.phkvz.mongodb.net:27017,cluster0-shard-00-01.phkvz.mongodb.net:27017,cluster0-shard-00-02.phkvz.mongodb.net:27017/?ssl=true&replicaSet=atlas-rkmjvp-shard-0&authSource=admin&retryWrites=true&w=majority"
-     )
-db = cluster["ForApi"]
-col = db["Block"]
-
-token = "token"  #secret_jlfaf0TOQsF1aOSLK4EpctPLLDNMAyVxQOAlf9JnSLB
-database_id = "database_id"  #8ebce70ab01d4b36a26b0b83d07a4cdd
-
-
-
-def create_headers(token):
-    headers = {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json",
-        "Notion-Version": "2021-05-13",
-        "Accept": "application/json",
-    }
-    return headers
-
-def create_url(type):
-    url = "https://api.notion.com/v1/"
-    if type == "db":
-        url += "search/"
-    elif type == "pg":
-        url += "pages/"
-    elif type == "li":
-        url += "search/"
-    elif type == "bl":
-        url += "blocks/"
-    return url
-
-
-def insert_to_mongo(data):
-    #col.insert_one({"json": data})
-    pass
-
-
-def readDB(database_id, token):
-    try:
-        playload = {"page_size": 100}
-        response = requests.post(
-            f"https://api.notion.com/v1/databases/{database_id}/query",
-            json=playload,
-            headers=create_headers(token),
-        )
-        print(json.dumps(response.json(),indent=4))
-        return response.json()
-    except:
-        print("Error while fetching a user...")
-
-# readDB(database_id,token)
-
-
-
-def get_block_by_id(block_id,token):
-    url = f"https://api.notion.com/v1/blocks/{block_id}"
-
-    headers = {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json",
-        "Notion-Version": "2021-05-13",
-        "Accept": "application/json",
-    }
-    response = requests.request("GET", url, headers=headers)
-    #print(json.dumps(response.json(), indent=4))
-    return json.dumps(response.json(), indent=4)
-
-
-
-def get_page_blocks(arr,token):
-    arr2 = []
-    for i in arr:
-        arr2.append(get_block_by_id(i, token))
-        json_o = json.loads(get_block_by_id(i, token))
-        obj = json_o.items()
-        for k, v in obj:
-            if k == "type":
-                if v == "column_list":
-                    arr2.append(column_list(i))
-    return arr2
-
-
-
-def column_list(block_id):
-
-
-    url = f"https://api.notion.com/v1/blocks/{block_id}/children?page_size=100"
-
-    headers = {
-        "Authorization": "Bearer " + "secret_jlfaf0TOQsF1aOSLK4EpctPLLDNMAyVxQOAlf9JnSLB",
-        "Content-Type": "application/json",
-        "Notion-Version": "2021-05-13",
-        "Accept": "application/json",
-    }
-
-    response = requests.request("GET", url, headers=headers)
-
-    #print(json.dumps(response.json(), indent=4))
-    return json.dumps(response.json())
-
-
-#get_list_of_pages(headers)
-
-
-
-def get_content_from_db(json_str):
-    arr_rows = []
-    index = 0
-    for i in json_str["results"]:
-        index += 1
-        arr_rows.append(f" --------------- {index} row ---------------")
-        for key , value in i["properties"].items():
-            for k,v in value.items():
-                if k == "rich_text" or k == "title":
-                    arr_rows.append(v)
-    return arr_rows
-
-
-def get_urls(json_str):
-
-    arr = []
-    for j in json_str["results"]:
-            arr.append(j["url"])
-    print(arr)
-    return arr
-
-
 
 @app.route("/retrieve_a_block", methods=["POST", "GET"])
 def retrieve_block():
@@ -262,6 +234,11 @@ def retrieve_block():
                 f.write(i.__str__()+"\n")
             f.close()
             app.config["RESULT"] = "files"
+            sql_create_new_download = f"""INSERT INTO downloads(user_id, username, database_id,integration_id) VALUES("{current_user.id}","{current_user.username}","{database_id}","{token}");"""
+            conn2 = create_connection(database)
+            cur = conn2.cursor()
+            cur.execute(sql_create_new_download)
+            conn2.commit()
             return send_from_directory(app.config["RESULT"], path="result.txt", as_attachment=True)
 
 
@@ -269,15 +246,80 @@ def retrieve_block():
     return render_template("retrieve_a_block.html")
 
 
-@app.route("/profile")
+@app.route("/profile", methods=["POST", "GET"])
 @login_required
 def profile():
-    return render_template("profile.html")
+    if request.method == ("POST"):
+        name = request.form.get("name")
+        surname = request.form.get("surname")
+        date_of_birth = request.form.get("date_of_birth")
+
+        sql_search_userdetails=\
+            f"""
+            SELECT * 
+            FROM user_details 
+            WHERE  username = "{current_user.username}"
+            """
+        sql_patch_userDetails = f"""UPDATE user_details
+              SET name = "{name}" ,
+                  surname = "{surname}" ,
+                  date_of_birth = "{date_of_birth}"
+              WHERE username = "{current_user.username}"
+"""
+        sql_create_new_userDetails = \
+            f"""INSERT INTO user_details(user_id,username,name,surname,date_of_birth) VALUES("{current_user.id}", "{current_user.username}","{name}","{surname}","{date_of_birth}");"""
+        conn2 = create_connection(database)
+        cur = conn2.cursor()
+        cur.execute(sql_search_userdetails)
+        if cur.fetchall():
+            cur.execute(sql_patch_userDetails)
+            conn2.commit()
+        else:
+            cur.execute(sql_create_new_userDetails)
+            conn2.commit()
+    userDetails = UserDetails.query.filter_by(
+            user_id=current_user.id).first()
+    return render_template("profile.html",current_user=current_user,user_details=userDetails)
 
 @app.route("/downloads")
 @login_required
 def downloads():
-    return render_template("downloads.html")
+    sql_search_downloads = \
+        f"""
+        SELECT * 
+        FROM downloads 
+        WHERE  username = "{current_user.username}"
+        """
+    conn2 = create_connection(database)
+    cur = conn2.cursor()
+    downloads = cur.execute(sql_search_downloads).fetchall()
+    print(downloads)
+    return render_template("downloads.html",downloads=downloads)
+
+array_of_results = []
+
+
+
+
+# readDB(database_id,token)
+
+
+
+
+
+def get_content_from_db(json_str):
+    arr_rows = []
+    index = 0
+    for i in json_str["results"]:
+        index += 1
+        arr_rows.append(f" --------------- {index} row ---------------")
+        for key , value in i["properties"].items():
+            arr_rows.append(f"column: {key}")
+            arr_rows.append(value)
+    return arr_rows
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

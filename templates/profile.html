@@ -66,7 +66,47 @@
 
         <div class="container-fluid">
             <h1>Profile information</h1>
+            <div class="d-flex align-items-center justify-content-center">
+
+                <form method="POST">
+            <h1>{{current_user.username}}</h1>
+
+                    <div class="mt-4 row">
+                        <label class="col-5">Name:
+                        </label>
+                        <input class="col-7"
+                                value="{{user_details.  name}}"
+
+                                   id="name"
+                        name="name">
+                    </div>
+                    <div class="mt-4 row">
+                        <label class=" col-5">Surname:
+                        </label>
+                        <input
+                                value="{{user_details.surname}}"
+                                class="col-7"
+                                id="surname"
+                        name="surname">
+                    </div>
+                    <div class="mt-4 row">
+                        <label class=" col-5">Date of Birth:
+                        </label>
+                        <input value="{{user_details.date_of_birth}}"
+                                class="col-7"
+                                id="date_of_birth"
+                        name="date_of_birth">
+                    </div>
+                    <div class="mt-5 d-flex justify-content-center row ">
+
+                        <button class="w-100 btn btn-success">Edit profile info</button>
+                    </div>
+
+                </form>
+            </div>
+
         </div>
+
 
 
         <!-- /#page-content-wrapper -->
